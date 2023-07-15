@@ -49,11 +49,11 @@ const Input: React.FC<InputProps> = ({
           name={name}
           {...register}
           data-testid="input-element"
-          className="w-full px-3 py-2 placeholder-gray-500 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="w-full px-3 py-2 placeholder-gray-500 border rounded focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
         />
         {type.toLowerCase() === 'password' && (
           <span
-            className="icon absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer"
+            className="icon absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer "
             onClick={seePassword}
             role="presentation"
             data-testid="see-button"

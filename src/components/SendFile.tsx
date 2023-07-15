@@ -1,5 +1,6 @@
-import React from "react";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import { AnyAction, unwrapResult } from "@reduxjs/toolkit";
+
 import { Link, useNavigate } from "react-router-dom";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
@@ -7,14 +8,18 @@ import { useDispatch, useSelector } from "react-redux";
 import { decodeToken } from "react-jwt";
 import LoginThunk from "../Redux/actions/login";
 import loginSchema from "../Validations/login";
-import Input from "../components/Input";
+import Input from "./Input";
+
 import { showErrorMessage, showSuccessMessage } from "../utils/toast";
 import { RootState, AppDispatch } from "../Redux/store";
 import TextArea from "./Textarea";
-import Smschema from "../Validations/sendSms";
-import { CircularProgress } from "@material-ui/core";
 import SendThunk from "../Redux/actions/sendSms";
-function SendOne() {
+import Smschema from "../Validations/sendSms";
+import Loader from "./loader";
+
+function SendFile() {
+  const [recipients, setRecipients] = useState<string[]>([]);
+
   const { error, errorMessage, isLoading, data } = useSelector(
     (state: RootState) => state.send
   );
@@ -27,12 +32,46 @@ function SendOne() {
   } = useForm({
     resolver: yupResolver(Smschema),
   });
-
   const dispatch = useDispatch<AppDispatch>();
+
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      try {
+        const XLSX = await import("xlsx");
+        readExcelFile(file, XLSX);
+      } catch (error) {
+        console.error("Error loading xlsx library:", error);
+      }
+    }
+  };
+
+  const readExcelFile = (file: File, XLSX: any) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const data = e.target?.result;
+      processExcelData(data, XLSX);
+    };
+    reader.readAsBinaryString(file);
+  };
+
+  const processExcelData = (data: any, XLSX: any) => {
+    const workbook = XLSX.read(data, { type: "binary" });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+    const recipientsColumnData = jsonData
+      .map((row: any) => row[recipientsColumnIndex])
+      .filter((recipient: any) => recipient !== undefined && recipient !== null)
+      .map((recipient: any) => `250${recipient}`);
+
+    setRecipients(recipientsColumnData);
+  };
+
+  const recipientsColumnIndex = 1;
 
   const submit = async (data: any) => {
     try {
-      const recipients = [data.recipients];
       const senderId = data.senderId;
       const message = data.message;
       const formData = { senderId, message, recipients };
@@ -41,6 +80,7 @@ function SendOne() {
         unwrapResult(action)
       );
       reset();
+
       if (!response) {
         showErrorMessage("An error occurred");
       } else {
@@ -57,48 +97,43 @@ function SendOne() {
 
   return (
     <>
-      <div className="bg-white flex rounded shadow p-5 items-center w-[600px]  border h-fit">
-        <div className="w-full p-2">
-          <p className="text-2xl text-gray-700 sm:text-xl md:text-1xl lg:text-2xl">
-            Send a message
+      <div className="bg-white flex rounded shadow border   items-center  w-[600px] p-5 h-fit">
+        <div className="w-full  p-2">
+          <p className="text-2xl text-gray-600  sm:text-xl md:text-1xl lg:text-2xl">
+            Send From Excel File
           </p>
+
           <form className="flex flex-col gap-4" onSubmit={handleSubmit(submit)}>
-            <div className="relative my-2">
-              <label htmlFor="Sender ID" className="text-0.1xl text-gray-500">
-                Sender ID
-              </label>
+            <div className=" mt-1">
               <Input
-                className="rounded-xl w-full text-0.1xl text-gray-500"
+                className="mx-0  border  rounded w-full text-sm text-gray-700 "
                 type="text"
-                name="senderId"
-                placeholder="ex. Igitaramo"
+                name="Sender ID"
+                placeholder="SenderId Ex.Igitaramo"
                 register={{ ...register("senderId") }}
                 errors={errors?.senderId?.message}
               />
             </div>
-            <div className="relative my-2">
-              <label htmlFor="phone" className="text-0.1xl text-gray-500">
-                Phone Number (07xxxxxxxx)
+
+            <div className="">
+              <label htmlFor="File" className="text-0.1xl text-gray-500">
+                Excel file
               </label>
-              <Input
-                className="rounded-xl w-full text-0.1xl text-gray-500"
-                type="text"
-                name="Sender ID"
-                placeholder=" ex. 2507xxxxxx"
-                register={{ ...register("recipients") }}
-                errors={errors?.senderId?.message}
+              <input
+                type="file"
+                className="p-4 rounded border w-full text-sm text-gray-500 "
+                onChange={handleFileChange}
               />
             </div>
-            <div className="relative my-2">
-              <label htmlFor="phone" className="text-0.1xl text-gray-500">
-                Sms (1/160)
-              </label>
+
+            <div className="">
               <textarea
                 className="
-              w-full h-32 p-4 border rounded text-md text-gray-800"
+              w-full h-32 p-4 border rounded text-sm"
                 placeholder="Message"
               ></textarea>
             </div>
+
             <button
               type="submit"
               className="  m-4 p-2  w-1/3 bg-primary rounded text-white py-3 hover:scale-105 duration-300"
@@ -113,4 +148,4 @@ function SendOne() {
   );
 }
 
-export default SendOne;
+export default SendFile;

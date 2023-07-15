@@ -1,20 +1,18 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { AnyAction, unwrapResult } from "@reduxjs/toolkit";
-import { Link, useNavigate } from "react-router-dom";
+
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { decodeToken } from "react-jwt";
-import LoginThunk from "../Redux/actions/login";
-import loginSchema from "../Validations/login";
+
 import Input from "../components/Input";
 import { showErrorMessage, showSuccessMessage } from "../utils/toast";
 import { RootState, AppDispatch } from "../Redux/store";
 import TextArea from "./Textarea";
 import Smschema from "../Validations/sendSms";
-import { CircularProgress } from "@material-ui/core";
 import SendThunk from "../Redux/actions/sendSms";
-function SendOne() {
+
+function SendMany() {
   const { error, errorMessage, isLoading, data } = useSelector(
     (state: RootState) => state.send
   );
@@ -41,6 +39,7 @@ function SendOne() {
         unwrapResult(action)
       );
       reset();
+
       if (!response) {
         showErrorMessage("An error occurred");
       } else {
@@ -48,7 +47,7 @@ function SendOne() {
       }
     } catch (e: any) {
       if (e) {
-        showErrorMessage("Error occurred");
+        showErrorMessage(e.response.data.message);
       } else {
         showErrorMessage(e.response.data.message);
       }
@@ -57,41 +56,46 @@ function SendOne() {
 
   return (
     <>
-      <div className="bg-white flex rounded shadow p-5 items-center w-[600px]  border h-fit">
-        <div className="w-full p-2">
-          <p className="text-2xl text-gray-700 sm:text-xl md:text-1xl lg:text-2xl">
-            Send a message
+      <div className="bg-white flex rounded shadow p-5  border p- items-center w-[600px] h-fit ">
+        <div className="w-full  p-2">
+          <p className=" text-2xl text-gray-600  sm:text-xl md:text-1xl lg:text-2xl  ">
+            Send To many
           </p>
-          <form className="flex flex-col gap-4" onSubmit={handleSubmit(submit)}>
-            <div className="relative my-2">
-              <label htmlFor="Sender ID" className="text-0.1xl text-gray-500">
-                Sender ID
+
+          <form
+            className="flex flex-col gap-4 b"
+            onSubmit={handleSubmit(submit)}
+          >
+            <div className=" my-2">
+              <label htmlFor="" className="text-gray-600">
+                {" "}
+                Sender Id
               </label>
               <Input
-                className="rounded-xl w-full text-0.1xl text-gray-500"
+                className="mx-0  border  rounded w-full text-sm text-gray-300"
                 type="text"
-                name="senderId"
-                placeholder="ex. Igitaramo"
+                name="Sender ID"
+                placeholder="SenderId Ex.Igitaramo"
                 register={{ ...register("senderId") }}
                 errors={errors?.senderId?.message}
               />
             </div>
-            <div className="relative my-2">
-              <label htmlFor="phone" className="text-0.1xl text-gray-500">
-                Phone Number (07xxxxxxxx)
+
+            <div className="my-2">
+              <label htmlFor="" className="text-gray-500">
+                {" "}
+                Numbers separate with(,)
               </label>
-              <Input
-                className="rounded-xl w-full text-0.1xl text-gray-500"
-                type="text"
-                name="Sender ID"
-                placeholder=" ex. 2507xxxxxx"
-                register={{ ...register("recipients") }}
-                errors={errors?.senderId?.message}
-              />
+              <textarea
+                className="
+              w-full h-32 p-4 border rounded text-sm text-gray-800"
+                placeholder="Numbers  ex.2507xxxxxxx, 2507xxxxxxx,"
+              ></textarea>
             </div>
-            <div className="relative my-2">
-              <label htmlFor="phone" className="text-0.1xl text-gray-500">
-                Sms (1/160)
+            <div className="my-2">
+              <label htmlFor="" className="text-gray-500">
+                {" "}
+                Message
               </label>
               <textarea
                 className="
@@ -104,7 +108,7 @@ function SendOne() {
               className="  m-4 p-2  w-1/3 bg-primary rounded text-white py-3 hover:scale-105 duration-300"
               data-testid="submit"
             >
-              Send SMS
+              Send Sms
             </button>
           </form>
         </div>
@@ -113,4 +117,4 @@ function SendOne() {
   );
 }
 
-export default SendOne;
+export default SendMany;

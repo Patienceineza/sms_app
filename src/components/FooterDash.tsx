@@ -1,11 +1,15 @@
-import React from 'react';
+import React from "react";
 
 function FooterD() {
   return (
-    <footer className="bg-primary  text-white py-4 text-center absolute bottom-0 w-4/5">
-      <div className="container mx-auto">
+    <footer className="bg-gray-300 text-gray-600 py-4 text-center fixed bottom-0 w-full   ">
+      <div className="container flex flex-row justify-start items-start ml-3">
         <p className="text-x">
-          COPYRIGHT © 2023 <span className="font-bold cursor-pointer hover:underline">Ishemahub</span>, All rights Reserved
+          COPYRIGHT © 2023{" "}
+          <span className="font-bold cursor-pointer hover:underline text-primary ">
+            Ishemahub
+          </span>
+          , All rights Reserved
         </p>
       </div>
     </footer>

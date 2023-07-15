@@ -1,9 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import LoginThunk from "../actions/login";
+import ApiThunk from "../actions/createApi";
 
-export interface LoginState {
-  access_token: string | null;
+export interface ApiState {
+  data: string | null;
 
   isLoading: boolean;
 
@@ -11,8 +11,8 @@ export interface LoginState {
   errorMessage: string | undefined;
 }
 
-export const initialState: LoginState = {
-  access_token: localStorage.getItem("Ishema-token"),
+export const initialState: ApiState = {
+  data: null,
 
   isLoading: false,
 
@@ -21,29 +21,27 @@ export const initialState: LoginState = {
 };
 
 export const loginSlice = createSlice({
-  name: "login",
+  name: "api",
   initialState,
   reducers: {
-    login: (state, { payload }) => {
-   
-      localStorage.setItem("token-Ishema", payload.access_token);
-      state.access_token = payload.access_token;
+    api: (state, { payload }: PayloadAction<string | null>) => {
+      state.data = payload;
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(LoginThunk.pending, (state) => {
+      .addCase(ApiThunk.pending, (state) => {
         state.isLoading = true;
         state.error = false;
       })
-      .addCase(LoginThunk.rejected, (state, action: any) => {
+      .addCase(ApiThunk.rejected, (state, action: any) => {
         state.isLoading = false;
         state.error = true;
 
         state.errorMessage =
           action.payload?.error?.response?.data?.message || "error";
       })
-      .addCase(LoginThunk.fulfilled, (state, action) => {
+      .addCase(ApiThunk.fulfilled, (state, action) => {
         state.isLoading = false;
 
         if (action.payload.error) {
@@ -51,14 +49,8 @@ export const loginSlice = createSlice({
           state.errorMessage =
             action.payload?.error?.response?.data?.message || "Unknown error";
         } else if (action.payload.access_token) {
-          localStorage.setItem("Ishema-token", action.payload.access_token);
           state.error = false;
-          state.access_token = action.payload.access_token;
-        } else if (
-          typeof action.payload.message === "string" &&
-          action.payload.message.includes("check your email")
-        ) {
-          state.error = false;
+          state.data = action.payload;
         } else {
           state.error = true;
           state.errorMessage = "Unknown error";

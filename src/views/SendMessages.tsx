@@ -1,34 +1,15 @@
 import React from "react";
-import FooterD from "../components/FooterDash";
-import Sidebar from "../components/Sidebar";
-import {
-  ChartBarIcon,
-  ShoppingCartIcon,
-  UserGroupIcon,
-  UserIcon,
-  UserCircleIcon,
-  CogIcon,
-  InboxIcon,
-  PowerIcon,
-} from "@heroicons/react/24/solid";
-import { Input } from "@material-tailwind/react";
+
 import SendOne from "../components/Sendone";
+import SendMany from "../components/SendMany";
+import SendFile from "../components/SendFile";
 
 function Dashboard() {
   return (
-    <div className="flex flex-col min-h-screen">
-      <div className="flex flex-1">
-        <div className="w-1/5 bg-blue-200">
-          <Sidebar />
-        </div>
-
-        <div className="w-4/5 bg-gray-100 flex flex-col flex-wrap rounded-2xl shadow-lg overflow-hidden max-w-screen-xl mx-auto">
-          <div className="flex justify-start mt-5 ml-5">
-            <SendOne />
-          </div>
-          <FooterD />
-        </div>
-      </div>
+    <div className="flex  flex-row flex-wrap justify-start mt-10 py-20 gap-3 w-[100%] max-h-[90vh] overflow-scroll overflow-x-hidden mx-8 ">
+      <SendOne />
+      <SendMany />
+      <SendFile />
     </div>
   );
 }

@@ -12,18 +12,14 @@ import Input from "../components/Input";
 import { showErrorMessage, showSuccessMessage } from "../utils/toast";
 import { RootState, AppDispatch } from "../Redux/store";
 import Footer from "../components/Footer";
+import signupSchema from "../Validations/register";
+import RegisterThunk from "../Redux/actions/register";
 
-function Login() {
+function Register() {
   const navigate = useNavigate();
   const { error, errorMessage, isLoading, access_token } = useSelector(
     (state: RootState) => state.login
   );
-
-  useEffect(() => {
-    if (!isLoading && !error && access_token) {
-      const decodedToken = decodeToken(access_token);
-    }
-  }, [isLoading, error, access_token]);
 
   const {
     register,
@@ -31,26 +27,22 @@ function Login() {
     formState: { errors },
     reset,
   } = useForm({
-    resolver: yupResolver(loginSchema),
+    resolver: yupResolver(signupSchema),
   });
-  useEffect(() => {
-    if (!isLoading && !error && access_token) {
-      setTimeout(() => navigate("/dashboard"), 1);
-    }
-  }, [error, errorMessage, isLoading, access_token]);
 
   const dispatch = useDispatch<AppDispatch>();
 
   const submit = async (data: any) => {
     try {
-      const response = await dispatch(LoginThunk(data)).then((action: any) =>
-        unwrapResult(action)
-      );
-
+      const { firstName, lastName, email, password }: any = { ...data };
+      const response = await dispatch(
+        RegisterThunk({ firstName, lastName, email, password })
+      ).then((action: any) => unwrapResult(action));
+      reset();
       if (!response) {
         showErrorMessage("An error occurred");
       } else {
-        showSuccessMessage("login succcessfull");
+        showSuccessMessage("register succcessfull");
         setTimeout(() => navigate("/dashboard"), 2000);
       }
     } catch (e: any) {
@@ -64,18 +56,35 @@ function Login() {
 
   return (
     <>
-      <section className="bg-gray-50 min-h-screen flex  flex-col  items-center justify-center">
+      <section className="bg-gray-50 min-h-screen flex  flex-col  items-center justify-center  ">
         <div className="bg-gray-200 flex rounded-2xl shadow-lg max-w-3xl p-5 items-center w-full">
           <div className="w-full px-8 md:px-16">
             <h4 className="font-bold text-2xl text-primary sm:text-xl md:text-1xl lg:text-2xl  ">
-              Login to your account
+              Create Account
             </h4>
-            <p className="text-xs mt-4 text-primary">log you account details</p>
+            <p className="text-xs mt-4 text-primary"></p>
 
             <form
               className="flex flex-col gap-4 b"
               onSubmit={handleSubmit(submit)}
             >
+              <Input
+                className="p-2 rounded-xl border-primary w-full"
+                type="text"
+                name="firstName"
+                placeholder=" First Name"
+                register={{ ...register("firstName") }}
+                errors={errors?.firstName?.message}
+              />
+              <Input
+                className="p-2 rounded-xl border-primary w-full"
+                type="text"
+                name="lastName"
+                defaultValue=""
+                placeholder="Last Name"
+                register={{ ...register("lastName") }}
+                errors={errors?.lastName?.message}
+              />
               <Input
                 className="p-2 rounded-xl border-primary w-full"
                 type="email"
@@ -93,6 +102,14 @@ function Login() {
                   register={{ ...register("password") }}
                   errors={errors?.password?.message}
                 />
+                <Input
+                  className="p-2 rounded-xl border w-full"
+                  type="password"
+                  name="ConfirmPassword"
+                  placeholder="Re-enter password"
+                  register={{ ...register("ConfirmPassword") }}
+                  errors={errors?.ConfirmPassword?.message}
+                />
               </div>
               <button
                 type="submit"
@@ -102,11 +119,7 @@ function Login() {
                 {isLoading ? (
                   <i className="fa-solid fa-spinner"></i>
                 ) : (
-                  <span>
-                    {!isLoading && !error && access_token
-                      ? "Login Successful"
-                      : "Log in"}
-                  </span>
+                  <span>Register</span>
                 )}
               </button>
               {error && (
@@ -116,14 +129,10 @@ function Login() {
               )}
             </form>
 
-            <div className="mt-5 text-xs border-b border-text-primary py-4 text-primary">
-              <a href="#">Forgot your password?</a>
-            </div>
-
             <div className="mt-3 text-xs flex justify-between items-center text-primary">
-              <p>Don't have an account?</p>
+              <p>Already have an account</p>
               <button className="py-2 px-5 bg-white border rounded-xl hover:scale-110 duration-300">
-                <Link to="/register"> Register</Link>
+                <Link to="/login"> Login</Link>
               </button>
             </div>
           </div>
@@ -134,4 +143,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Register;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 interface TextAreaProps {
   placeholder: string;
@@ -10,27 +10,27 @@ interface TextAreaProps {
   max?: number;
   cols?: number;
   rows?: number;
-  resize?: 'vertical' | 'horizontal';
+  resize?: "vertical" | "horizontal";
   required?: boolean;
 }
 
 function TextArea({
   placeholder,
-  className = '',
-  defaultValue = '',
+  className = "",
+  defaultValue = "",
   register = null,
-  name = '',
+  name = "",
   errors,
   max = 2000,
   cols,
   rows = 5,
-  resize = 'vertical',
+  resize = "vertical",
   required,
 }: TextAreaProps) {
   const [resizeStyle] = useState(() => {
-    if (resize.toLowerCase() === 'vertical') return 'vertical';
-    if (resize.toLowerCase() === 'horizontal') return 'horizontal';
-    return 'vertical';
+    if (resize.toLowerCase() === "vertical") return "vertical";
+    if (resize.toLowerCase() === "horizontal") return "horizontal";
+    return "vertical";
   });
 
   return (
@@ -38,7 +38,6 @@ function TextArea({
       <div className={`input-1 ${className}`}>
         <textarea
           defaultValue={defaultValue}
-          
           required={required}
           name={name}
           {...register}

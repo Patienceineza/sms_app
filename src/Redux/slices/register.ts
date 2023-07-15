@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import LoginThunk from "../actions/login";
+import RegisterThunk from "../actions/register";
 
-export interface LoginState {
+export interface registerState {
   access_token: string | null;
 
   isLoading: boolean;
@@ -11,7 +11,7 @@ export interface LoginState {
   errorMessage: string | undefined;
 }
 
-export const initialState: LoginState = {
+export const initialState: registerState = {
   access_token: localStorage.getItem("Ishema-token"),
 
   isLoading: false,
@@ -20,32 +20,31 @@ export const initialState: LoginState = {
   errorMessage: undefined,
 };
 
-export const loginSlice = createSlice({
+export const RegisterSlice = createSlice({
   name: "login",
   initialState,
   reducers: {
-    login: (state, { payload }) => {
-   
-      localStorage.setItem("token-Ishema", payload.access_token);
+    register: (state, { payload }) => {
+    
+      localStorage.setItem("Ishema-token", payload.access_token);
       state.access_token = payload.access_token;
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(LoginThunk.pending, (state) => {
+      .addCase(RegisterThunk.pending, (state) => {
         state.isLoading = true;
         state.error = false;
       })
-      .addCase(LoginThunk.rejected, (state, action: any) => {
+      .addCase(RegisterThunk.rejected, (state, action: any) => {
         state.isLoading = false;
         state.error = true;
-
         state.errorMessage =
           action.payload?.error?.response?.data?.message || "error";
       })
-      .addCase(LoginThunk.fulfilled, (state, action) => {
+      .addCase(RegisterThunk.fulfilled, (state, action) => {
         state.isLoading = false;
-
+        localStorage.setItem("Ishema-token", action.payload.access_token);
         if (action.payload.error) {
           state.error = true;
           state.errorMessage =
@@ -54,11 +53,6 @@ export const loginSlice = createSlice({
           localStorage.setItem("Ishema-token", action.payload.access_token);
           state.error = false;
           state.access_token = action.payload.access_token;
-        } else if (
-          typeof action.payload.message === "string" &&
-          action.payload.message.includes("check your email")
-        ) {
-          state.error = false;
         } else {
           state.error = true;
           state.errorMessage = "Unknown error";
@@ -67,4 +61,4 @@ export const loginSlice = createSlice({
   },
 });
 
-export default loginSlice.reducer;
+export default RegisterSlice.reducer;
